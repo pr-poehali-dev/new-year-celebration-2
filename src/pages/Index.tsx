@@ -1,12 +1,63 @@
+import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 
 const Index = () => {
+  const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+
+  useEffect(() => {
+    const targetDate = new Date('2026-01-01T00:00:00').getTime();
+
+    const updateCountdown = () => {
+      const now = new Date().getTime();
+      const difference = targetDate - now;
+
+      if (difference > 0) {
+        setTimeLeft({
+          days: Math.floor(difference / (1000 * 60 * 60 * 24)),
+          hours: Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
+          minutes: Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60)),
+          seconds: Math.floor((difference % (1000 * 60)) / 1000)
+        });
+      } else {
+        setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+      }
+    };
+
+    updateCountdown();
+    const interval = setInterval(updateCountdown, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const Snowflake = ({ delay, duration, left }: { delay: number; duration: number; left: string }) => (
+    <div
+      className="absolute text-white/70 text-2xl pointer-events-none animate-snow"
+      style={{
+        left,
+        top: '-50px',
+        animationDelay: `${delay}s`,
+        animationDuration: `${duration}s`
+      }}
+    >
+      ❄️
+    </div>
+  );
+
   return (
     <div className="min-h-screen bg-background relative overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-br from-green-900/20 via-background to-red-900/20" />
       
+      {Array.from({ length: 30 }).map((_, i) => (
+        <Snowflake
+          key={i}
+          delay={i * 0.5}
+          duration={10 + Math.random() * 10}
+          left={`${Math.random() * 100}%`}
+        />
+      ))}
+
       <div className="absolute top-10 left-10 text-6xl animate-float">🎄</div>
       <div className="absolute top-20 right-20 text-4xl animate-float" style={{ animationDelay: '1s' }}>✨</div>
       <div className="absolute bottom-20 left-20 text-5xl animate-float" style={{ animationDelay: '2s' }}>🎁</div>
@@ -22,6 +73,36 @@ const Index = () => {
             Пусть новый год принесёт радость, вдохновение и творческие успехи! 🎉
           </p>
         </div>
+
+        <Card className="mb-12 p-8 bg-gradient-to-br from-primary/20 via-accent/20 to-secondary/20 border-primary/40 backdrop-blur-sm animate-scale-in">
+          <h3 className="text-2xl font-bold text-center mb-6">До Нового 2026 Года осталось:</h3>
+          <div className="grid grid-cols-4 gap-4 max-w-3xl mx-auto">
+            <div className="text-center">
+              <div className="text-5xl font-bold bg-gradient-to-br from-primary to-accent bg-clip-text text-transparent mb-2">
+                {timeLeft.days}
+              </div>
+              <div className="text-sm text-muted-foreground">дней</div>
+            </div>
+            <div className="text-center">
+              <div className="text-5xl font-bold bg-gradient-to-br from-primary to-accent bg-clip-text text-transparent mb-2">
+                {timeLeft.hours}
+              </div>
+              <div className="text-sm text-muted-foreground">часов</div>
+            </div>
+            <div className="text-center">
+              <div className="text-5xl font-bold bg-gradient-to-br from-primary to-accent bg-clip-text text-transparent mb-2">
+                {timeLeft.minutes}
+              </div>
+              <div className="text-sm text-muted-foreground">минут</div>
+            </div>
+            <div className="text-center">
+              <div className="text-5xl font-bold bg-gradient-to-br from-primary to-accent bg-clip-text text-transparent mb-2">
+                {timeLeft.seconds}
+              </div>
+              <div className="text-sm text-muted-foreground">секунд</div>
+            </div>
+          </div>
+        </Card>
 
         <Card className="mb-12 overflow-hidden border-primary/30 bg-card/50 backdrop-blur-sm animate-scale-in">
           <div className="grid md:grid-cols-2 gap-0">
